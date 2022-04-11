@@ -23,11 +23,10 @@ quits the routine).
 In the spin-coating routine, the motor ramps to the given final speed over a given ramp-up time, then
 rotates at that speed for a given time, and then ramps down to a standstill in a given time.
 
-## TODO:
-* Write a different Arduino program for calibrating the ESC
-* Write a "compiler" that can take routine parameters as e.g. a CSV file and either generate Arduino
- or bytecode directly, so that the Arduino can be reprogrammed for different routine parameters 
-without actually touching the code
-* Allow for serial input to run routines/change routine parameters/perhaps run arbitrary commands 
-directly, so that this Arduino could be connected to a Raspberry Pi or computer and controlled in 
-software or over a network
+## Routines:
+Generally, I have two routines programmed into the Arduino, with the ability to select between them via the switch.
+Currently, the two routines to select between are regular 850-rpm electropolishing, and two-step electropolishing: press the button to start high speend electropolishing, 
+then press again to ramp down to 850 rpm over the course of a second. Press a third time to stop completely.
+
+So far, a 100 ms delay between the button being pressed down (so as to eliminate bouncing electrodes), but a problem continues to exist if the button is held down for more than 100 ms 
+(and then, upon release, the button bounces and electrodes collide again).
