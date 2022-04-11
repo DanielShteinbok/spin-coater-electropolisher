@@ -13,6 +13,7 @@ const int electropolish = 950;
 const int spincoat = 1350;
 
 volatile bool act_queued = false; // set to true when an action is cued by e.g. a button press
+volatile unsigned long lastQueued; // the last time that an action was queued
 
 void setup() {
   ESC.attach(ESC_PIN);
@@ -87,6 +88,14 @@ void ramp(int ramp_time, int final_speed) {
   } while (currentTime - startTime < ramp_time);
 }
 
+void twoStepElectropolish(int first_speed, int second_speed, int ramp_time) {
+  // runs high speed electropolishing until an act is queued, then runs low speed electropolishing
+  //const int maxEpSig = 1040;
+  electroPolish(first_speed);
+  ramp(ramp_time, second_speed);
+  electroPolish(second_speed);
+}
+
 void loop() {
   //Serial.println("looping");
   if (act_queued) {
@@ -95,14 +104,21 @@ void loop() {
       electroPolish(electropolish);
     }
     else {
-      spinCoat(4000, spincoat, 4000, 4000);
+      //spinCoat(4000, spincoat, 4000, 4000);      
+      twoStepElectropolish(1040, electropolish, 1000);
     }
     ESC.writeMicroseconds(MIN_THROTTLE); // set the speed to 0 after finishing routine
   }
 }
 
 void queueAct() {
-  act_queued = true;
+  // prevent multiple queueings in a short period of time (due to button bouncing)
+  noInterrupts();
+  if (millis() - lastQueued > 100) {
+    act_queued = true;
+    lastQueued = millis();
+  }
+  interrupts();
 }
 
 void clearAct() {
