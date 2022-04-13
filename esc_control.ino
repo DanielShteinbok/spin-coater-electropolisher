@@ -22,7 +22,15 @@ void setup() {
   pinMode(SWITCH, INPUT);
   Serial.begin(9600);
 
-  attachInterrupt(digitalPinToInterrupt(BUTTON), queueAct, RISING); // queue a button press when the button is pressed
+  // problem with below: user presses and holds, after this the button may bounce
+  //attachInterrupt(digitalPinToInterrupt(BUTTON), queueAct, RISING); // queue a button press when the button is pressed
+
+  // a more complicated solution: remember when the button is pressed, then upon release if a button press is queued, the release queues an action
+  // this allows us to ignore long button holds; i.e. you press a button, but change your mind, and keeping it pressed for some amount of time cancels the action
+  //attachInterrupt(digitalPinToInterrupt(BUTTON), queueKeyDown, RISING); // queue a button press when the button is pressed
+
+  // perhaps, focusing on when the user releases the button will fix the issue above?
+  attachInterrupt(digitalPinToInterrupt(BUTTON), queueAct, FALLING); // queue a button press when the button is pressed
 }
 
 void electroPolish(int signal_us) {
